@@ -34,11 +34,11 @@ def obtine_toate_predictiile_zilei():
             for meci in date_meciuri:
                 gazde = meci['homeTeam']['name']
                 oaspeti = meci['awayTeam']['name']
-                # Extragere și formatare sumară dată/oră din API (ex: 2026-10-21T19:45:00Z)
                 data_utc = meci.get('utcDate', '')
-                if data_utc:
-                    data_zi = data_utc.split('T')[0]
-                    ora_meci = data_utc.split('T')[1][:5]
+                if data_utc and 'T' in data_utc:
+                    parti = data_utc.split('T')
+                    data_zi = parti[0]
+                    ora_meci = parti[1][:5]
                     detalii_timp = f"📅 {data_zi}  |  🕒 {ora_meci}"
                 else:
                     detalii_timp = "📅 Astăzi  |  🕒 21:45"
@@ -101,10 +101,13 @@ def obtine_toate_predictiile_zilei():
         elif p2_final > 42 and p2_final > p1_final: pronostic = "2 (Oaspeti)"
         else: pronostic = "X (Egal)"
         
+        # CORECTAT: Extragem valoarea numerică direct din array-ul goluri_baza înainte de a folosi max()
+        valoare_goluri_calculata = float(goluri_baza[0]) * vreme_simulata
+        
         rezultate_finale.append({
             "gazde": gazde, "oaspeti": oaspeti, "timp": timp,
             "p1": p1_final, "px": px_final, "p2": p2_final,
-            "goluri": float(max(0.0, goluri_baza * vreme_simulata)),
+            "goluri": float(max(0.0, valoare_goluri_calculata)),
             "pronostic": pronostic,
             "siguranta": max_safety
         })
@@ -130,7 +133,7 @@ for m in meciuri_top3:
         col1, col2, col3 = st.columns(3)
         with col1:
             st.write(f"⭐️ **{m['gazde']} vs {m['oaspeti']}**")
-            st.caption(f"{m['timp']}") # Afișare dată și oră sub formă de text secundar
+            st.caption(f"{m['timp']}") 
             st.write(f"🎯 **Pronostic sugerat:** {m['pronostic']}")
         with col2:
             c_1, c_x, c_2 = st.columns(3)
@@ -161,7 +164,7 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.write(f"⚽ **{m['gazde']} vs {m['oaspeti']}**")
-                st.caption(f"{m['timp']}") # Afișare dată și oră sub formă de text secundar
+                st.caption(f"{m['timp']}") 
                 st.write(f"🎯 **Pronostic:** {m['pronostic']}")
             with col2:
                 c_1, c_x, c_2 = st.columns(3)
