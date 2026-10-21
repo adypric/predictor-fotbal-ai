@@ -130,7 +130,7 @@ def obtine_toate_predictiile_zilei():
                         lista_predictii.append({
                             "gazde": gazde, "oaspeti": oaspeti,
                             "p1": p1_final, "px": px_final, "p2": p2_final,
-                            "goluri": max(0, goluri_baza * vreme_simulata),
+                            "goluri": max(0.0, goluri_baza * vreme_simulata),
                             "pronostic": pronostic,
                             "siguranta": max_safety
                         })
