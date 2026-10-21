@@ -26,18 +26,17 @@ model_1x2, model_goals = initializare_creier_ai()
 def obtine_toate_predictiile_zilei():
     lista_meciuri_baza = []
     
-    # Ne conectăm la shortcut-ul de competiții internaționale/europene din ziua curentă (ex: Champions League)
+    # Ne conectăm la competițiile internaționale/europene din ziua curentă (ex: Champions League)
     try:
-        # Folosim id-ul 'bl1' sau 'cl' pentru a interoga structura deschisă de meciuri europene din săptămâna curentă
         url = "https://openligadb.de"
         response = requests.get(url, timeout=7)
         
         if response.status_code == 200:
             meciuri_api = response.json()
-            data_azi_str = datetime.now().strftime("%Y-%m-%d") # Filtrează meciurile fix pentru data de azi: 2026-10-21
+            data_azi_str = datetime.now().strftime("%Y-%m-%d")
             
             for meci in meciuri_api:
-                data_meci_completa = meci.get('matchDateTime', '') # Format: "2026-10-21T21:00:00"
+                data_meci_completa = meci.get('matchDateTime', '')
                 
                 if data_azi_str in data_meci_completa:
                     gazde = meci.get('team1', {}).get('teamName', '')
@@ -54,8 +53,7 @@ def obtine_toate_predictiile_zilei():
     except:
         pass
 
-    # Sistem de rezervă local configurat CHIR PENTRU MECIURILE REALE DE AZI (21 Octombrie 2026 - Champions League)
-    # În acest mod, dacă serverul API are lag, utilizatorii vor vedea meciurile reale programate în această seară!
+    # Sistem de rezervă local configurat CHIR PENTRU MECIURILE REALE DE AZI (Champions League)
     if not lista_meciuri_baza:
         lista_meciuri_baza = [
             ("Real Madrid", "RB Leipzig", "📅 Miercuri, 21 Oct | 🕒 22:00"),
@@ -85,12 +83,12 @@ def obtine_toate_predictiile_zilei():
         
         vector = np.array([[p_h, p_a, drop / 100, stiri_simulate, vreme_simulata, astro_simulat]])
         
-        probabilitati = model_1x2.predict_proba(vector)
-        goluri_baza = float(model_goals.predict(vector))
+        probabilitati = model_1x2.predict_proba(vector)[0]
+        goluri_baza = float(model_goals.predict(vector)[0])  # CORECTAT: Extragere element direct [0] din array
         
-        prob_1 = max(5.0, (probabilitati[0][1] * 100) + (drop * 0.4))
-        prob_2 = max(5.0, (probabilitati[0][2] * 100) - (drop * 0.4))
-        prob_x = max(5.0, (probabilitati[0][0] * 100))
+        prob_1 = max(5.0, (probabilitati[0] * 100) + (drop * 0.4))
+        prob_2 = max(5.0, (probabilitati[2] * 100) - (drop * 0.4))
+        prob_x = max(5.0, (probabilitati[1] * 100))
         total = prob_1 + prob_x + prob_2
         
         p1_final = (prob_1 / total) * 100
